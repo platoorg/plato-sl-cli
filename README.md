@@ -263,11 +263,25 @@ go install cuelang.org/go/cmd/cue@latest
 If you're building from source and want version information embedded:
 
 ```bash
-# Using make (recommended)
+# Using make (recommended) - reads version from VERSION file
 make build
 
+# Or specify a custom version
+VERSION=plato-sl-cli-0.0.3 make build
+
 # Or using go install with version flags
-go install -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Version=v0.1.0" ./cmd/platosl
+go install -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Version=plato-sl-cli-0.0.2" ./cmd/platosl
+```
+
+**For maintainers:** To release a new version:
+1. Update the VERSION file with the new version
+2. Commit and tag the release:
+```bash
+echo "plato-sl-cli-0.0.3" > VERSION
+git add VERSION
+git commit -m "Bump version to 0.0.3"
+git tag plato-sl-cli-0.0.3
+git push origin main --tags
 ```
 
 ### Verify Installation
