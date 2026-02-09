@@ -6,7 +6,7 @@ The PlatoSL CLI provides commands for managing CUE schemas and generating code i
 
 ```bash
 # Install from source
-go install platosl.org/cmd/platosl@latest
+go install github.com/platoorg/platosl-cli@latest
 
 # Or build locally
 git clone https://github.com/platoOrg/platoSl.git
@@ -436,7 +436,7 @@ jobs:
           go-version: '1.21'
 
       - name: Install PlatoSL
-        run: go install platosl.org/cmd/platosl@latest
+        run: go install github.com/platoorg/platosl-cli@latest
 
       - name: Check formatting
         run: platosl fmt --check

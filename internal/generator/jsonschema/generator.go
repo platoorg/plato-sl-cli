@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"platosl.org/cmd/platosl/internal/generator"
+	"github.com/platoorg/platosl-cli/internal/generator"
 )
 
 // Generator generates JSON Schema from CUE

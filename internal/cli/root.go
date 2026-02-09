@@ -20,6 +20,7 @@ It provides commands for initialization, validation, and code generation from
 CUE schemas to TypeScript, JSON Schema, Go, and Elixir.`,
 	SilenceUsage:  true,
 	SilenceErrors: true,
+	Version:       Version,
 }
 
 func Execute() error {

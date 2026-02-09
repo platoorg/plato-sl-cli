@@ -8,9 +8,9 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/spf13/cobra"
-	"platosl.org/cmd/platosl/internal/config"
-	platoCue "platosl.org/cmd/platosl/internal/cue"
-	platoErrors "platosl.org/cmd/platosl/internal/errors"
+	"github.com/platoorg/platosl-cli/internal/config"
+	platoCue "github.com/platoorg/platosl-cli/internal/cue"
+	platoErrors "github.com/platoorg/platosl-cli/internal/errors"
 )
 
 var (

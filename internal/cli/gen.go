@@ -8,17 +8,17 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/spf13/cobra"
-	"platosl.org/cmd/platosl/internal/config"
-	platoCue "platosl.org/cmd/platosl/internal/cue"
-	"platosl.org/cmd/platosl/internal/errors"
-	"platosl.org/cmd/platosl/internal/generator"
+	"github.com/platoorg/platosl-cli/internal/config"
+	platoCue "github.com/platoorg/platosl-cli/internal/cue"
+	"github.com/platoorg/platosl-cli/internal/errors"
+	"github.com/platoorg/platosl-cli/internal/generator"
 
 	// Import generators to register them
-	_ "platosl.org/cmd/platosl/internal/generator/elixir"
-	_ "platosl.org/cmd/platosl/internal/generator/golang"
-	_ "platosl.org/cmd/platosl/internal/generator/jsonschema"
-	_ "platosl.org/cmd/platosl/internal/generator/typescript"
-	_ "platosl.org/cmd/platosl/internal/generator/zod"
+	_ "github.com/platoorg/platosl-cli/internal/generator/elixir"
+	_ "github.com/platoorg/platosl-cli/internal/generator/golang"
+	_ "github.com/platoorg/platosl-cli/internal/generator/jsonschema"
+	_ "github.com/platoorg/platosl-cli/internal/generator/typescript"
+	_ "github.com/platoorg/platosl-cli/internal/generator/zod"
 )
 
 var (

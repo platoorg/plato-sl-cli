@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
-	platoCue "platosl.org/cmd/platosl/internal/cue"
+	platoCue "github.com/platoorg/platosl-cli/internal/cue"
 )
 
 var (

@@ -11,7 +11,7 @@ Successfully implemented a complete Go-based CLI tool for PlatoSL that provides 
 **Completed Components:**
 
 1. **Project Structure**
-   - Go module initialization (`platosl.org/cmd/platosl`)
+   - Go module initialization (`github.com/platoorg/platosl-cli`)
    - Organized directory structure following Go best practices
    - Makefile for common build tasks
 

@@ -222,15 +222,67 @@ platosl gen graphql > schema.graphql
 
 ## Installation
 
+### Prerequisites
+
+PlatoSL requires Go 1.24+ to be installed on your system.
+
+### Install via Go
+
+The easiest way to install PlatoSL is using `go install`:
+
 ```bash
-# Install CUE
+go install github.com/platoorg/platosl-cli/cmd/platosl@latest
+```
+
+### Install from Source
+
+Alternatively, you can build and install from source:
+
+```bash
+# Clone the repository
+git clone https://github.com/platoorg/platosl-cli.git
+cd platosl-cli
+
+# Build and install
+go install ./cmd/platosl
+
+# Verify installation
+platosl --help
+```
+
+### Install CUE (Optional)
+
+While PlatoSL includes CUE internally, you may want to install the CUE CLI for direct schema manipulation:
+
+```bash
 go install cuelang.org/go/cmd/cue@latest
+```
 
-# Install PlatoSL CLI (coming soon)
-go install platosl.org/cmd/platosl@latest
+### Build with Version Information
 
-# Or use Docker
-docker run platosl/platosl:latest validate
+If you're building from source and want version information embedded:
+
+```bash
+# Using make (recommended)
+make build
+
+# Or using go install with version flags
+go install -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Version=v0.1.0" ./cmd/platosl
+```
+
+### Verify Installation
+
+```bash
+# Check PlatoSL version
+platosl version
+
+# Or use the --version flag
+platosl --version
+
+# Initialize a test project
+mkdir test-project
+cd test-project
+platosl init
 ```
 
 ---
@@ -538,6 +590,9 @@ platosl init --generators typescript,zod,go
 ## CLI Commands
 
 ```bash
+# Show version information
+platosl version
+
 # Initialize new project
 platosl init
 

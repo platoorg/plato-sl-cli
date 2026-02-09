@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"platosl.org/cmd/platosl/internal/config"
+	"github.com/platoorg/platosl-cli/internal/config"
 )
 
 var (

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"platosl.org/cmd/platosl/internal/cli"
+	"github.com/platoorg/platosl-cli/internal/cli"
 )
 
 func main() {

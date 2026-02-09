@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
-	"platosl.org/cmd/platosl/internal/generator"
+	"github.com/platoorg/platosl-cli/internal/generator"
 )
 
 // Generator generates Zod schemas from CUE
