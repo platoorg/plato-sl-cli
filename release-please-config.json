@@ -7,7 +7,9 @@
       "include-v-in-tag": false,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
-      "extra-files": []
+      "extra-files": [
+        "VERSION"
+      ]
     }
   }
 }
