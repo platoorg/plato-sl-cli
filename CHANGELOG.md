@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/platoorg/plato-sl-cli/compare/v0.0.4...v0.0.5) (2026-02-10)
+
+
+### Features
+
+* add init-again capabilites ([43686a1](https://github.com/platoorg/plato-sl-cli/commit/43686a1427e74ab33f13ac40c5e3c7bbcf7465cb))
+
 ## [0.0.4](https://github.com/platoorg/plato-sl-cli/compare/v0.0.3...v0.0.4) (2026-02-10)
 
 
