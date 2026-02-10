@@ -1,222 +1,12 @@
-# PlatoSL - Schema Language for Content
+# PlatoSL CLI
 
-**Kustomize for content. Strong validation. Best practices built-in.**
+A command-line tool for managing CUE-based schemas with validation and code generation for TypeScript, Zod, Go, JSON Schema, and Elixir.
 
-Version: 0.1 (Draft)
-
----
-
-## What is PlatoSL?
-
-PlatoSL is a **schema language with composition and validation** inspired by Kustomize and Kubernetes. It provides:
-
-1. **Base schemas** - Battle-tested content structures (addresses, products, articles)
-2. **Strong validation** - Catch errors at build time, not runtime
-3. **Composition** - Extend and customize base schemas
-4. **Framework agnostic** - Use with any CMS, UI framework, or API
-
----
-
-## The Problem
-
-Every project recreates the wheel:
-
-```typescript
-// ❌ Everyone writes their own address schema
-interface Address {
-  street?: string;  // Is this required?
-  city: string;     // What about UK "town" vs US "city"?
-  zip: string;      // Wrong: UK uses "postcode", format varies by country
-}
-```
-
-Problems:
-- No validation (runtime errors)
-- Country-specific rules missed
-- Inconsistent across projects
-- No best practices
-
----
-
-## The PlatoSL Solution
-
-Use battle-tested base schemas with strong validation:
-
-```bash
-# Initialize project
-platosl init
-
-# Add base schemas from the schemas repository
-platosl add github.com/platoorg/plato-sl/base/address/us@v1.0.0
-
-# Validate at build time
-platosl validate
-
-# Generate TypeScript types
-platosl gen typescript
-```
-
----
-
-## Quick Example: Addresses
-
-### Use a Base Schema (US Address)
-
-```cue
-// my-project/address.cue
-package myproject
-
-import us "platosl.org/schemas/address/us"
-
-// Use the US address base
-Address: us.#Address
-
-// Validation happens automatically
-validAddress: Address & {
-    street_line1: "123 Main St"
-    city: "San Francisco"
-    state: "CA"
-    zip: "94102"
-}
-
-// ❌ This would fail validation:
-// invalidAddress: Address & {
-//     zip: "1234"  // Error: must match ^\d{5}(-\d{4})?$
-// }
-```
-
-### Extend a Base Schema
-
-```cue
-// Add custom fields while keeping validation
-MyAddress: us.#Address & {
-    // Add optional delivery instructions
-    delivery_notes?: string
-
-    // Add custom validation
-    if state == "CA" {
-        // California requires county
-        county!: string
-    }
-}
-```
-
-### Support Multiple Countries
-
-```cue
-package myproject
-
-import (
-    us "platosl.org/schemas/address/us"
-    uk "platosl.org/schemas/address/uk"
-    de "platosl.org/schemas/address/de"
-)
-
-// Union type for multi-country addresses
-Address: us.#Address | uk.#Address | de.#Address
-
-// Type-safe usage
-myAddresses: [...Address] & [
-    {
-        _type: "us"
-        street_line1: "123 Main St"
-        city: "New York"
-        state: "NY"
-        zip: "10001"
-    },
-    {
-        _type: "uk"
-        street_line1: "10 Downing Street"
-        town: "London"
-        postcode: "SW1A 2AA"
-    },
-]
-```
-
----
-
-## Core Concepts
-
-### 1. Base Schemas (Best Practices)
-
-PlatoSL provides base schemas for common content types through the [platosl repository](https://github.com/platoorg/plato-sl):
-
-```
-platosl.org/schemas/
-├── address/
-│   ├── us/       # US addresses
-│   ├── uk/       # UK addresses
-│   ├── de/       # German addresses
-│   ├── jp/       # Japanese addresses
-│   └── ...
-├── geo/          # Geographic data
-│   ├── us/       # US states
-│   ├── uk/       # UK countries
-│   ├── de/       # German Bundesländer
-│   └── jp/       # Japanese prefectures
-└── content/      # CMS content blocks (Image, Avatar, etc.)
-```
-
-Add schemas to your project:
-```bash
-platosl add github.com/platoorg/plato-sl/base/address/us@v1.0.0
-platosl add github.com/platoorg/plato-sl/base/content@v1.0.0
-```
-
-### 2. Strong Validation
-
-Validation happens at **build time**, not runtime:
-
-```bash
-# Validate all schemas
-platosl validate
-
-# Output:
-# ✓ address.cue validated
-# ✗ product.cue failed:
-#   - price.amount: must be positive
-#   - image.src: required field missing
-```
-
-### 3. Composition & Extension
-
-Like Kustomize, you can:
-- **Use bases as-is**
-- **Extend with new fields**
-- **Override constraints**
-- **Merge multiple bases**
-
-```cue
-// Start with base schema (after adding it to your project)
-import content "platosl.org/schemas/content"
-
-// Extend for your needs
-MyImage: content.#Image & {
-    // Add custom field
-    internal_id?: string
-
-    // Add constraints
-    width: >800  // Minimum width requirement
-}
-```
-
-### 4. Code Generation
-
-Generate types for any language:
-
-```bash
-# TypeScript
-platosl gen typescript > types.ts
-
-# Go
-platosl gen go > types.go
-
-# JSON Schema
-platosl gen jsonschema > schema.json
-
-# GraphQL
-platosl gen graphql > schema.graphql
-```
+**Key Features:**
+- Build-time schema validation using CUE
+- Import and extend battle-tested base schemas
+- Generate type-safe code for multiple languages
+- Framework-agnostic with support for any CMS or API
 
 ---
 
@@ -224,11 +14,9 @@ platosl gen graphql > schema.graphql
 
 ### Prerequisites
 
-PlatoSL requires Go 1.24+ to be installed on your system.
+- Go 1.24+ ([download here](https://go.dev/dl/))
 
 ### Install via Go
-
-The easiest way to install PlatoSL is using `go install`:
 
 ```bash
 go install github.com/platoorg/platosl-cli/cmd/platosl@latest
@@ -236,187 +24,127 @@ go install github.com/platoorg/platosl-cli/cmd/platosl@latest
 
 ### Install from Source
 
-Alternatively, you can build and install from source:
-
 ```bash
-# Clone the repository
 git clone https://github.com/platoorg/platosl-cli.git
 cd platosl-cli
-
-# Build and install
-go install ./cmd/platosl
-
-# Verify installation
-platosl --help
-```
-
-### Install CUE (Optional)
-
-While PlatoSL includes CUE internally, you may want to install the CUE CLI for direct schema manipulation:
-
-```bash
-go install cuelang.org/go/cmd/cue@latest
-```
-
-### Build with Version Information
-
-If you're building from source and want version information embedded:
-
-```bash
-# Using make (recommended) - reads version from VERSION file
-make build
-
-# Or specify a custom version
-VERSION=plato-sl-cli-0.0.3 make build
-
-# Or using go install with version flags
-go install -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Version=plato-sl-cli-0.0.2" ./cmd/platosl
-```
-
-**For maintainers:** To release a new version:
-1. Update the VERSION file with the new version
-2. Commit and tag the release:
-```bash
-echo "plato-sl-cli-0.0.3" > VERSION
-git add VERSION
-git commit -m "Bump version to 0.0.3"
-git tag plato-sl-cli-0.0.3
-git push origin main --tags
+make install
 ```
 
 ### Verify Installation
 
 ```bash
-# Check PlatoSL version
 platosl version
-
-# Or use the --version flag
-platosl --version
-
-# Initialize a test project
-mkdir test-project
-cd test-project
-platosl init
 ```
 
 ---
 
-## Project Structure
+## Quick Start
 
-```
-my-project/
-├── platosl.yaml          # Project config
-├── schemas/
-│   ├── address.cue       # Address schema
-│   ├── product.cue       # Product schema
-│   └── article.cue       # Article schema
-├── content/
-│   ├── products/         # Product content instances
-│   └── articles/         # Article content instances
-└── generated/
-    ├── types.ts          # Generated TypeScript
-    └── schema.json       # Generated JSON Schema
+### 1. Initialize a New Project
+
+```bash
+mkdir my-project
+cd my-project
+platosl init
 ```
 
-### platosl.yaml Configuration
-
-The `platosl.yaml` file is the main configuration file for your PlatoSL project. It defines schema locations, dependencies, validation rules, and code generation settings.
-
-#### Basic Example
-
-```yaml
-version: v1
-name: my-project
-
-# Schema locations
-schemas:
-  - schemas/
-
-# Schema dependencies (added via `platosl add`)
-imports:
-  - github.com/platoorg/plato-sl/base/address/us@v1.0.0
-  - github.com/platoorg/plato-sl/base/content@v1.0.0
-
-# Validation rules
-validation:
-  strict: true
-  failOnWarning: false
-
-# Code generation
-generate:
-  typescript:
-    enabled: true
-    output: generated/types.ts
-  jsonschema:
-    enabled: true
-    output: generated/schema.json
+You'll be prompted to select generators (use space to select, enter to confirm):
+```
+? Select generators to enable:
+  [x] typescript
+  [x] zod
+  [ ] go
+  [ ] jsonschema
+  [ ] elixir
 ```
 
-#### Configuration Reference
+This creates:
+- `platosl.yaml` - Configuration file
+- `schemas/` - Your schema directory
+- `schemas/example.cue` - Example schema
+- `generated/` - Output directory for generated code
 
-##### version (required)
-The configuration file format version. Currently only `v1` is supported.
+### 2. Define Your Schema
 
-```yaml
-version: v1
+Edit `schemas/example.cue`:
+
+```cue
+package schemas
+
+// Define a Person schema
+#Person: {
+	name!: string
+	email!: string & =~"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+	age?: int & >=0 & <=150
+}
 ```
 
-##### name (required)
-The name of your project. Used in generated documentation and code comments.
+### 3. Validate Your Schema
 
-```yaml
-name: my-project
+```bash
+platosl validate
 ```
 
-##### schemas (required)
-List of directories containing your CUE schema files. Relative paths are resolved from the project root.
+### 4. Generate Code
 
-```yaml
-schemas:
-  - schemas/
-  - custom-schemas/
+```bash
+# Generate TypeScript types
+platosl gen typescript
+
+# Generate Zod schemas
+platosl gen zod
+
+# Generate all configured generators
+platosl build
 ```
 
-##### imports (optional)
-List of base schema dependencies to import into your project. These are typically versioned schema packages from the official PlatoSL repository.
+Your generated code will be in the `generated/` directory.
 
-```yaml
-imports:
-  - github.com/platoorg/plato-sl/base/address/us@v1.0.0
-  - github.com/platoorg/plato-sl/base/address/uk@v1.0.0
-  - github.com/platoorg/plato-sl/base/content@v1.0.0
+---
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `platosl init` | Initialize a new project with interactive generator selection |
+| `platosl validate` | Validate all schemas in your project |
+| `platosl gen <generator>` | Generate code for a specific generator |
+| `platosl build` | Validate schemas and run all enabled generators |
+| `platosl fmt` | Format CUE schema files |
+| `platosl version` | Show version information |
+| `platosl completion <shell>` | Generate shell completion script |
+
+### Examples
+
+```bash
+# Initialize with specific generators (non-interactive)
+platosl init --generators typescript,zod,go
+
+# Validate a specific file
+platosl validate schemas/person.cue
+
+# Generate TypeScript types
+platosl gen typescript
+
+# Generate Zod schemas
+platosl gen zod
+
+# Validate and generate all enabled generators
+platosl build
+
+# Format all CUE files
+platosl fmt
 ```
 
-##### validation (optional)
-Configure schema validation behavior.
+---
 
-```yaml
-validation:
-  # Require all fields to be concrete (fully defined)
-  strict: true
+## Supported Frameworks & Languages
 
-  # Fail the validation if warnings are encountered
-  failOnWarning: false
-```
+PlatoSL generates type-safe code for multiple languages and validation frameworks:
 
-##### generate (optional)
-Configure code generation for different target languages. Each generator can be enabled/disabled and configured independently.
+### TypeScript
+Generates TypeScript interface definitions.
 
-#### Available Generators
-
-##### TypeScript Generator
-
-Generates TypeScript interface definitions from your CUE schemas.
-
-```yaml
-generate:
-  typescript:
-    enabled: true
-    output: generated/types.ts
-    options: {}
-```
-
-**Output Example:**
 ```typescript
 export interface Person {
   name: string;
@@ -425,19 +153,17 @@ export interface Person {
 }
 ```
 
-##### Zod Generator
-
-Generates Zod validation schemas with TypeScript type inference.
-
+**Configuration:**
 ```yaml
 generate:
-  zod:
+  typescript:
     enabled: true
-    output: generated/schemas.ts
-    options: {}
+    output: generated/types.ts
 ```
 
-**Output Example:**
+### Zod
+Generates Zod validation schemas with TypeScript type inference.
+
 ```typescript
 import { z } from 'zod';
 
@@ -450,20 +176,17 @@ export const PersonSchema = z.object({
 export type Person = z.infer<typeof PersonSchema>;
 ```
 
-##### Go Generator
-
-Generates Go struct definitions with JSON tags.
-
+**Configuration:**
 ```yaml
 generate:
-  go:
+  zod:
     enabled: true
-    output: generated/types.go
-    options:
-      package: types  # Go package name
+    output: generated/schemas.ts
 ```
 
-**Output Example:**
+### Go
+Generates Go struct definitions with JSON tags.
+
 ```go
 package types
 
@@ -474,23 +197,22 @@ type Person struct {
 }
 ```
 
-##### JSON Schema Generator
-
-Generates JSON Schema (Draft 2020-12) definitions.
-
+**Configuration:**
 ```yaml
 generate:
-  jsonschema:
+  go:
     enabled: true
-    output: generated/schema.json
-    options: {}
+    output: generated/types.go
+    options:
+      package: types
 ```
 
-**Output Example:**
+### JSON Schema
+Generates JSON Schema (Draft 2020-12) definitions.
+
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/person.schema.json",
   "type": "object",
   "properties": {
     "name": { "type": "string" },
@@ -501,20 +223,17 @@ generate:
 }
 ```
 
-##### Elixir Generator
-
-Generates Elixir typespecs and struct definitions.
-
+**Configuration:**
 ```yaml
 generate:
-  elixir:
+  jsonschema:
     enabled: true
-    output: generated/types.ex
-    options:
-      module: MyApp.Types  # Elixir module name
+    output: generated/schema.json
 ```
 
-**Output Example:**
+### Elixir
+Generates Elixir typespecs and struct definitions.
+
 ```elixir
 defmodule MyApp.Types do
   @type person :: %{
@@ -527,27 +246,111 @@ defmodule MyApp.Types do
 end
 ```
 
-#### Complete Example
+**Configuration:**
+```yaml
+generate:
+  elixir:
+    enabled: true
+    output: generated/types.ex
+    options:
+      module: MyApp.Types
+```
 
-Here's a complete `platosl.yaml` with all generators enabled:
+---
+
+## Adding Plato Schemas
+
+PlatoSL provides battle-tested base schemas for common types like addresses, geographic data, and content blocks.
+
+### Available Schema Categories
+
+Official schemas are maintained at [github.com/platoorg/plato-sl](https://github.com/platoorg/plato-sl):
+
+- **Addresses:** US, UK, DE, JP, and more country-specific address formats
+- **Geographic data:** States, prefectures, regions, postal codes
+- **Content blocks:** Image, Avatar, Card, Hero, and more CMS components
+
+### Adding a Schema
+
+Add schemas to your `platosl.yaml` imports section:
+
+```bash
+# Example: Add US address schema
+platosl add github.com/platoorg/plato-sl/base/address/us@v1.0.0
+```
+
+Or edit `platosl.yaml` manually:
+
+```yaml
+imports:
+  - github.com/platoorg/plato-sl/base/address/us@v1.0.0
+  - github.com/platoorg/plato-sl/base/content@v1.0.0
+```
+
+### Using an Imported Schema
+
+```cue
+package myproject
+
+import us "platosl.org/schemas/address/us"
+
+// Use the base schema as-is
+Address: us.#Address
+
+// Or extend it with custom fields
+MyAddress: us.#Address & {
+    delivery_notes?: string
+
+    // Add custom validation
+    if state == "CA" {
+        county!: string
+    }
+}
+```
+
+### Multi-Country Support
+
+```cue
+import (
+    us "platosl.org/schemas/address/us"
+    uk "platosl.org/schemas/address/uk"
+    de "platosl.org/schemas/address/de"
+)
+
+// Union type for multi-country addresses
+Address: us.#Address | uk.#Address | de.#Address
+```
+
+### Browse Available Schemas
+
+Visit the [PlatoSL schemas catalog](https://github.com/platoorg/plato-sl/blob/main/base/README.md) to browse all available schemas.
+
+---
+
+## Configuration Reference
+
+### platosl.yaml Structure
 
 ```yaml
 version: v1
-name: my-ecommerce-project
+name: my-project
 
+# Schema directories
 schemas:
   - schemas/
   - custom-schemas/
 
+# Schema dependencies
 imports:
   - github.com/platoorg/plato-sl/base/address/us@v1.0.0
-  - github.com/platoorg/plato-sl/base/address/uk@v1.0.0
   - github.com/platoorg/plato-sl/base/content@v1.0.0
 
+# Validation rules
 validation:
-  strict: true
-  failOnWarning: false
+  strict: true           # Require all fields to be concrete
+  failOnWarning: false   # Don't fail on warnings
 
+# Code generation
 generate:
   typescript:
     enabled: true
@@ -563,7 +366,7 @@ generate:
     enabled: true
     output: generated/types.go
     options:
-      package: models
+      package: types
 
   jsonschema:
     enabled: true
@@ -574,290 +377,178 @@ generate:
     enabled: true
     output: generated/types.ex
     options:
-      module: MyEcommerce.Schemas
+      module: MyApp.Types
 ```
 
-#### Interactive Initialization
+### Configuration Options
 
-When you run `platosl init`, you'll be prompted to select which generators to enable:
+#### version (required)
+Configuration file format version. Currently only `v1` is supported.
+
+#### name (required)
+Project name used in generated documentation and code comments.
+
+#### schemas (required)
+List of directories containing CUE schema files. Paths are relative to project root.
+
+#### imports (optional)
+List of base schema dependencies from the official PlatoSL repository.
+
+#### validation (optional)
+- `strict` - Require all fields to be concrete (fully defined)
+- `failOnWarning` - Fail validation if warnings are encountered
+
+#### generate (optional)
+Configure code generators. Each generator has:
+- `enabled` - Enable/disable the generator
+- `output` - Output file path
+- `options` - Generator-specific options (see Supported Frameworks section)
+
+---
+
+## Shell Completion
+
+Enable autocompletion for faster command entry.
+
+### Bash
 
 ```bash
-$ platosl init
+# Load for current session
+source <(platosl completion bash)
 
-? Select generators to enable:
-  [x] typescript
-  [x] zod
-  [ ] go
-  [ ] jsonschema
-  [ ] elixir
+# Install permanently
+# Linux:
+sudo platosl completion bash > /etc/bash_completion.d/platosl
+
+# macOS:
+platosl completion bash > $(brew --prefix)/etc/bash_completion.d/platosl
 ```
 
-Use the space bar to select/deselect generators, then press Enter to confirm. You can also specify generators non-interactively:
+### Zsh
 
 ```bash
-# Skip interactive mode and specify generators directly
-platosl init --generators typescript,zod,go
+# Enable completion
+mkdir -p ~/.zsh/completions
+platosl completion zsh > ~/.zsh/completions/_platosl
+
+# Add to ~/.zshrc
+echo 'fpath=(~/.zsh/completions $fpath)' >> ~/.zshrc
+echo 'autoload -U compinit; compinit' >> ~/.zshrc
+
+# Restart shell
+source ~/.zshrc
+```
+
+### Fish
+
+```bash
+# Load for current session
+platosl completion fish | source
+
+# Install permanently
+platosl completion fish > ~/.config/fish/completions/platosl.fish
+```
+
+### PowerShell
+
+```powershell
+# Load for current session
+platosl completion powershell | Out-String | Invoke-Expression
+
+# Add to profile
+platosl completion powershell > platosl.ps1
+# Then source this file from your PowerShell profile
 ```
 
 ---
 
-## CLI Commands
+## Project Structure
 
-```bash
-# Show version information
-platosl version
+A typical PlatoSL project:
 
-# Initialize new project
-platosl init
-
-# Add schema dependencies
-platosl add github.com/platoorg/plato-sl/base/address/us@v1.0.0
-
-# Validate schemas
-platosl validate
-
-# Validate specific file
-platosl validate schemas/address.cue
-
-# Generate code
-platosl gen typescript
-platosl gen jsonschema
-platosl gen graphql
-
-# Build (validate + generate)
-platosl build
-
-# Format CUE files
-platosl fmt
-
-# Show schema info
-platosl info address
+```
+my-project/
+├── platosl.yaml          # Configuration file
+├── schemas/              # Your CUE schemas
+│   ├── person.cue
+│   ├── product.cue
+│   └── address.cue
+└── generated/            # Generated code (auto-created)
+    ├── types.ts          # TypeScript interfaces
+    └── schemas.ts        # Zod schemas
 ```
 
 ---
 
-## Why CUE?
+## CUE Schema Basics
 
-**CUE** (Configure Unify Execute) is perfect for schemas:
+PlatoSL uses CUE (Configure Unify Execute) for schema definition. Here are the essentials:
 
-### Built-in Validation
+### Define a Schema
+
 ```cue
-// Validation is part of the schema
+package schemas
+
+// Use # prefix for definitions
+#Person: {
+    name!: string              // Required field
+    email?: string             // Optional field
+    age: int & >=0 & <=150    // Integer with constraints
+}
+```
+
+### Validation Rules
+
+```cue
+// String patterns
 zip: string & =~"^\d{5}(-\d{4})?$"
-price: number & >0 & <1000000
-```
 
-### Type Safety
-```cue
-// Types are constraints
-name: string
-age: int & >=0 & <=150
+// Number constraints
+price: number & >0 & <1000000
+
+// Enums
+status: "active" | "inactive" | "pending"
+
+// Nested objects
+address: {
+    street: string
+    city: string
+    zip: string
+}
+
+// Arrays
+tags: [...string]  // Array of strings
 ```
 
 ### Composition
-```cue
-// Schemas compose naturally
-Base: { name: string }
-Extended: Base & { age: int }
-```
-
-### Generate Anything
-```bash
-# CUE can export to JSON, YAML, Go, etc.
-cue export schema.cue --out json
-cue export schema.cue --out yaml
-```
-
-### Used by Kubernetes
-- Kubernetes is moving from YAML to CUE
-- Istio uses CUE
-- Proven at scale
-
----
-
-## Benefits
-
-### For Content Creators
-- ✅ Validation catches errors immediately
-- ✅ Don't need to reinvent schemas
-- ✅ Confidence that content will work
-
-### For Developers
-- ✅ Type-safe props (TypeScript, Go, etc.)
-- ✅ No runtime validation code needed
-- ✅ Contract between content and code
-
-### For Organizations
-- ✅ Consistent schemas across projects
-- ✅ Best practices built-in
-- ✅ Country-specific rules handled
-- ✅ Migrate between CMSs easily
-
----
-
-## Use Cases
-
-### 1. Headless CMS Configuration
 
 ```cue
-// Define content model for Contentful/Strapi
-// First: platosl add github.com/platoorg/plato-sl/base/content@v1.0.0
-import content "platosl.org/schemas/content"
+// Base schema
+#BaseUser: {
+    id: string
+    name: string
+}
 
-CMSArticle: {
-    // Use base content blocks
-    hero?: content.#Image
-    author_avatar?: content.#Avatar
-
-    // CMS-specific fields
-    _contentType: "article"
-    _sys: {
-        id: string
-        createdAt: string
-        updatedAt: string
-    }
+// Extended schema
+#AdminUser: #BaseUser & {
+    permissions: [...string]
+    role: "admin" | "superadmin"
 }
 ```
 
-### 2. Multi-Country E-commerce
-
-```cue
-// First: platosl add github.com/platoorg/plato-sl/base/address/us@v1.0.0
-// First: platosl add github.com/platoorg/plato-sl/base/address/uk@v1.0.0
-import (
-    us "platosl.org/schemas/address/us"
-    uk "platosl.org/schemas/address/uk"
-)
-
-// Support both US and UK addresses
-ShippingAddress: us.#Address | uk.#Address
-
-Order: {
-    customer_address: ShippingAddress
-    billing_address: ShippingAddress
-    // Validation ensures addresses are valid for their country
-}
-```
-
-### 3. UI Component Props
-
-```cue
-// Define component props
-ProductCard: {
-    image: {
-        src: string
-        alt: string
-    }
-    title: string
-    price: {
-        amount: number & >0
-        currency: "USD" | "EUR" | "GBP"
-    }
-}
-
-// Generate TypeScript
-// platosl gen typescript > ProductCard.types.ts
-```
+Learn more about CUE at [cuelang.org](https://cuelang.org).
 
 ---
 
-## Roadmap
+## Resources
 
-### v0.1 (Current)
-- [x] Core concept and architecture
-- [ ] Base address schemas (US, UK, DE, JP, etc.)
-- [ ] CLI tool (`platosl`)
-- [ ] CUE schema library
-
-### v0.2
-- [ ] More base schemas (product, article, video, profile)
-- [ ] TypeScript code generation
-- [ ] JSON Schema export
-- [ ] Validation errors with suggestions
-
-### v0.3
-- [ ] CMS integrations (Contentful, Strapi)
-- [ ] Framework adapters (React, Vue)
-- [ ] GraphQL schema generation
-- [ ] Online schema browser
-
-### v1.0
-- [ ] Stable specification
-- [ ] Full country coverage (addresses)
-- [ ] Community schema registry
-- [ ] IDE plugins
+- **Official Schemas:** [github.com/platoorg/plato-sl](https://github.com/platoorg/plato-sl)
+- **Schema Catalog:** [Browse available schemas](https://github.com/platoorg/plato-sl/blob/main/base/README.md)
+- **CUE Documentation:** [cuelang.org](https://cuelang.org)
+- **Issue Tracker:** [github.com/platoorg/platosl-cli/issues](https://github.com/platoorg/platosl-cli/issues)
 
 ---
 
-## Comparison
+## License
 
-### vs JSON Schema
-- JSON Schema: Validation only
-- PlatoSL: Validation + composition + best practices
-
-### vs TypeScript
-- TypeScript: Runtime types in JS/TS only
-- PlatoSL: Build-time validation, language-agnostic
-
-### vs Kustomize
-- Kustomize: For Kubernetes resources
-- PlatoSL: For content and data
-
-### vs Zod/Yup
-- Zod/Yup: Runtime validation in JavaScript
-- PlatoSL: Build-time validation, any language
-
----
-
-## Philosophy
-
-**Content should be validated like code.**
-
-Just as we:
-- Type-check code at compile time
-- Validate Kubernetes manifests with `kubectl apply --dry-run`
-- Lint configurations before deployment
-
-We should:
-- Validate content at build time
-- Use proven schemas, not ad-hoc types
-- Catch errors before production
-
-**PlatoSL = Kustomize for content**
-
----
-
-## Official Schemas
-
-Official schemas are maintained in a separate repository:
-[github.com/platoorg/plato-sl](https://github.com/platoorg/plato-sl)
-
-Available schemas:
-- **Address schemas** (US, UK, DE, JP)
-- **Geographic data** (states, prefectures, regions)
-- **Content contracts** (Image, Avatar, Card, Hero, etc.)
-
-See the [schemas catalog](https://github.com/platoorg/plato-sl/blob/main/base/README.md).
-
-## Next Steps
-
-1. Read the [Quick Start Guide](./QUICKSTART.md)
-2. Explore [official schemas](https://github.com/platoorg/plato-sl)
-3. Check out the [CLI documentation](./CLI.md)
-4. Try the [examples](https://github.com/platoorg/plato-sl/tree/main/examples)
-
----
-
-## Contributing
-
-PlatoSL is open source. Contributions needed:
-
-- [ ] More country-specific address schemas
-- [ ] Base schemas for common content types
-- [ ] Code generators (TypeScript, Go, Python)
-- [ ] CMS integrations
-- [ ] Documentation and examples
-
----
-
-**PlatoSL: Validate content like code. Compose like Kustomize.**
+[Add your license here]
