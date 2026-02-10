@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/platoorg/plato-sl-cli/compare/v0.0.3...v0.0.4) (2026-02-10)
+
+
+### Bug Fixes
+
+* mod install path ([043cba8](https://github.com/platoorg/plato-sl-cli/commit/043cba8b85bdd1aa99cd2ffefd0545b64d842055))
+
 ## [0.0.3](https://github.com/platoorg/plato-sl-cli/compare/v0.0.2...v0.0.3) (2026-02-10)
 
 
