@@ -19,14 +19,20 @@ A command-line tool for managing CUE-based schemas with validation and code gene
 ### Install via Go
 
 ```bash
-go install github.com/platoorg/platosl-cli/cmd/platosl@latest
+# Install latest version (recommended)
+go install github.com/platoorg/plato-sl-cli/cmd/platosl@latest
+
+# Or install a specific version
+go install github.com/platoorg/plato-sl-cli/cmd/platosl@v0.0.3
 ```
+
+> **Note:** If `@latest` doesn't work immediately after a new release, the Go module proxy may need a few minutes to index the new version. You can install a specific version like `@v0.0.3` as a workaround.
 
 ### Install from Source
 
 ```bash
-git clone https://github.com/platoorg/platosl-cli.git
-cd platosl-cli
+git clone https://github.com/platoorg/plato-sl-cli.git
+cd plato-sl-cli
 make install
 ```
 

@@ -10,9 +10,9 @@ COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Build flags with version information
-LDFLAGS=-ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Version=$(VERSION) \
-                  -X github.com/platoorg/platosl-cli/internal/cli.Commit=$(COMMIT) \
-                  -X github.com/platoorg/platosl-cli/internal/cli.BuildDate=$(BUILD_DATE)"
+LDFLAGS=-ldflags "-X github.com/platoorg/plato-sl-cli/internal/cli.Version=$(VERSION) \
+                  -X github.com/platoorg/plato-sl-cli/internal/cli.Commit=$(COMMIT) \
+                  -X github.com/platoorg/plato-sl-cli/internal/cli.BuildDate=$(BUILD_DATE)"
 
 build:
 	go build $(LDFLAGS) -o bin/$(BINARY_NAME) $(MAIN_PATH)

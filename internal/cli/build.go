@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/platoorg/platosl-cli/internal/config"
+	"github.com/platoorg/plato-sl-cli/internal/config"
 )
 
 var buildCmd = &cobra.Command{

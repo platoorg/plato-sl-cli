@@ -9,15 +9,15 @@ import (
 
 var (
 	// Version is the current version of the CLI
-	// This can be set at build time using: -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Version=v1.0.0"
+	// This can be set at build time using: -ldflags "-X github.com/platoorg/plato-sl-cli/internal/cli.Version=v1.0.0"
 	Version = "plato-sl-cli-0.0.2"
 
 	// Commit is the git commit hash
-	// This can be set at build time using: -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.Commit=abc123"
+	// This can be set at build time using: -ldflags "-X github.com/platoorg/plato-sl-cli/internal/cli.Commit=abc123"
 	Commit = "unknown"
 
 	// BuildDate is the date the binary was built
-	// This can be set at build time using: -ldflags "-X github.com/platoorg/platosl-cli/internal/cli.BuildDate=2024-01-01"
+	// This can be set at build time using: -ldflags "-X github.com/platoorg/plato-sl-cli/internal/cli.BuildDate=2024-01-01"
 	BuildDate = "unknown"
 )
 

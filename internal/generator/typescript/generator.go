@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
-	"github.com/platoorg/platosl-cli/internal/generator"
+	"github.com/platoorg/plato-sl-cli/internal/generator"
 )
 
 // Generator generates TypeScript types and Zod schemas from CUE

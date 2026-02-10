@@ -1,4 +1,4 @@
-module github.com/platoorg/platosl-cli
+module github.com/platoorg/plato-sl-cli
 
 go 1.24.1
 

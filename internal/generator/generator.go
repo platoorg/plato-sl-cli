@@ -2,7 +2,7 @@ package generator
 
 import (
 	"cuelang.org/go/cue"
-	"github.com/platoorg/platosl-cli/internal/config"
+	"github.com/platoorg/plato-sl-cli/internal/config"
 )
 
 // Generator is the interface that all code generators must implement
