@@ -70,6 +70,8 @@ This creates:
 - `schemas/example.cue` - Example schema
 - `generated/` - Output directory for generated code
 
+**Tip:** You can run `platosl init` again in an existing project to add or remove generators interactively!
+
 ### 2. Define Your Schema
 
 Edit `schemas/example.cue`:

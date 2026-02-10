@@ -19,9 +19,10 @@ var (
 
 var initCmd = &cobra.Command{
 	Use:   "init [directory]",
-	Short: "Initialize a new PlatoSL project",
+	Short: "Initialize a new PlatoSL project or update generator configuration",
 	Long: `Initialize a new PlatoSL project with a platosl.yaml configuration file
-and directory structure.
+and directory structure. If a platosl.yaml already exists, this command will
+allow you to update the generator configuration.
 
 If a directory is specified, the project will be initialized there.
 Otherwise, it will be initialized in the current directory.
@@ -40,10 +41,13 @@ Examples:
   # Initialize interactively (will prompt for generator selection)
   platosl init
 
+  # Re-run in an existing project to add/remove generators
+  platosl init
+
   # Initialize with specific generators (non-interactive)
   platosl init --generators typescript,go,jsonschema
 
-  # Initialize with all generators (non-interactive)
+  # Update generators in existing project (non-interactive)
   platosl init --generators typescript,zod,jsonschema,go,elixir`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: runInit,
@@ -79,17 +83,39 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	// Check if already initialized
 	configPath := filepath.Join(absDir, "platosl.yaml")
-	if config.Exists(configPath) {
-		return fmt.Errorf("project already initialized (platosl.yaml exists)\n\nTo reinitialize, delete platosl.yaml first")
-	}
+	existingConfig := config.Exists(configPath)
 
-	// Determine project name
-	projectName := initName
-	if projectName == "" {
-		projectName = filepath.Base(absDir)
-	}
+	var cfg *config.Config
+	var projectName string
+	var currentGenerators []string
 
-	PrintVerbose("Initializing project: %s", projectName)
+	if existingConfig {
+		// Load existing config
+		PrintInfo("Found existing platosl.yaml - re-initializing project")
+		var err error
+		cfg, err = config.Load(configPath)
+		if err != nil {
+			return fmt.Errorf("failed to load existing config: %w", err)
+		}
+
+		projectName = cfg.Name
+
+		// Get currently enabled generators
+		for genName, genCfg := range cfg.Generate {
+			if genCfg.Enabled {
+				currentGenerators = append(currentGenerators, genName)
+			}
+		}
+
+		PrintVerbose("Current generators: %s", strings.Join(currentGenerators, ", "))
+	} else {
+		// Determine project name for new project
+		projectName = initName
+		if projectName == "" {
+			projectName = filepath.Base(absDir)
+		}
+		PrintVerbose("Initializing new project: %s", projectName)
+	}
 
 	// Parse selected generators
 	var selectedGenerators []string
@@ -109,10 +135,18 @@ func runInit(cmd *cobra.Command, args []string) error {
 	} else {
 		// Interactive mode - prompt user to select generators
 		availableGenerators := []string{"typescript", "zod", "go", "jsonschema", "elixir"}
-		defaultGenerators := []string{"typescript", "zod"}
+		defaultGenerators := currentGenerators
+		if len(defaultGenerators) == 0 {
+			defaultGenerators = []string{"typescript", "zod"}
+		}
+
+		message := "Select generators to enable:"
+		if existingConfig {
+			message = "Update generator selection (currently: " + strings.Join(currentGenerators, ", ") + "):"
+		}
 
 		prompt := &survey.MultiSelect{
-			Message: "Select generators to enable:",
+			Message: message,
 			Options: availableGenerators,
 			Default: defaultGenerators,
 			Help:    "Use space to select/deselect, enter to confirm. Multiple generators can be selected.",
@@ -125,8 +159,14 @@ func runInit(cmd *cobra.Command, args []string) error {
 		PrintInfo("Selected generators: %s", strings.Join(selectedGenerators, ", "))
 	}
 
-	// Create config with selected generators
-	cfg := config.DefaultWithGenerators(projectName, selectedGenerators)
+	// Create or update config with selected generators
+	if existingConfig {
+		// Update existing config with new generator selection
+		cfg = config.UpdateGenerators(cfg, selectedGenerators)
+	} else {
+		// Create new config with selected generators
+		cfg = config.DefaultWithGenerators(projectName, selectedGenerators)
+	}
 
 	// Add base schema if specified
 	if initBase != "" {
@@ -170,18 +210,28 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	// Success message
-	PrintSuccess("Initialized PlatoSL project: %s", projectName)
-	PrintInfo("")
-	PrintInfo("Created:")
-	PrintInfo("  platosl.yaml        - Configuration file")
-	PrintInfo("  schemas/            - Schema directory")
-	PrintInfo("  schemas/example.cue - Example schema")
-	PrintInfo("  generated/          - Generated code output")
-	PrintInfo("")
-	PrintInfo("Next steps:")
-	PrintInfo("  1. Edit schemas/example.cue or add your own schemas")
-	PrintInfo("  2. Run 'platosl validate' to validate schemas")
-	PrintInfo("  3. Run 'platosl gen typescript' to generate TypeScript types")
+	if existingConfig {
+		PrintSuccess("Updated PlatoSL project configuration: %s", projectName)
+		PrintInfo("")
+		PrintInfo("Generators enabled: %s", strings.Join(selectedGenerators, ", "))
+		PrintInfo("")
+		PrintInfo("Next steps:")
+		PrintInfo("  1. Run 'platosl validate' to validate schemas")
+		PrintInfo("  2. Run 'platosl build' to generate code for all enabled generators")
+	} else {
+		PrintSuccess("Initialized PlatoSL project: %s", projectName)
+		PrintInfo("")
+		PrintInfo("Created:")
+		PrintInfo("  platosl.yaml        - Configuration file")
+		PrintInfo("  schemas/            - Schema directory")
+		PrintInfo("  schemas/example.cue - Example schema")
+		PrintInfo("  generated/          - Generated code output")
+		PrintInfo("")
+		PrintInfo("Next steps:")
+		PrintInfo("  1. Edit schemas/example.cue or add your own schemas")
+		PrintInfo("  2. Run 'platosl validate' to validate schemas")
+		PrintInfo("  3. Run 'platosl gen typescript' to generate TypeScript types")
+	}
 
 	return nil
 }
