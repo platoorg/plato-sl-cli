@@ -4,12 +4,11 @@
     ".": {
       "release-type": "simple",
       "package-name": "plato-sl-cli",
-      "include-v-in-tag": false,
+      "include-v-in-tag": true,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
-      "extra-files": [
-        "VERSION"
-      ]
+      "extra-files": ["VERSION"],
+      "include-component-in-tag": false
     }
   }
 }
